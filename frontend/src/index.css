@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    font-size: 20px;
+}
+
+@layer components {
+    .active-link {
+        @apply text-[#2196F3]
+    }
+    .container {
+        padding-left: 40px;
+        padding-right: 40px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .active-navbar {
+        @apply max-lg:!top-[72px]
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+}

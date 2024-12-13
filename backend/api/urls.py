@@ -1,0 +1,32 @@
+from django.urls import path
+from .views import (
+    rest_password_view,
+    rest_password_done_view,
+    RegisterUserCreateAPIView,
+    verify_account_view,
+    ProductListCreateAPIView,
+    ProductRetrieveAPIView,
+    get_category_name,
+    index,
+)
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView
+)
+
+urlpatterns = [
+    path('', index),
+    
+    path('auth/', TokenObtainPairView.as_view(), name="Auth"),
+    path('auth/refresh/', TokenRefreshView.as_view(), name="Auth_refresh"),
+    path('reset-password/', rest_password_view, name="Reset_password"),
+    path('reset-password-done/<str:token>/', rest_password_done_view, name="Reset_password_done"),
+
+    path('register/', RegisterUserCreateAPIView.as_view(), name="Register"),
+    path('verify/', verify_account_view, name="Verify_account"),
+
+    path("products/", ProductListCreateAPIView.as_view(), name="Products"),
+    path("products/<str:slug>/", ProductRetrieveAPIView.as_view(), name="Products_detail"),
+    
+    path("category/<int:pk>/", get_category_name, name="Category"),
+]
