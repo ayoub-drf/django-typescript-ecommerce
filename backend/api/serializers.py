@@ -60,7 +60,20 @@ class RestPasswordSerializer(serializers.Serializer):
         if not User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email not found", HTTP_400_BAD_REQUEST) 
         return value
-    
+
+class TokenSerializerTwo(serializers.Serializer):
+    token = serializers.CharField(max_length=400)
+
+    def validate_token(self, value):
+        user = User.objects.filter(reset_password_token=value).first()
+        if not user:
+            raise ValidationError("Invalid token")
+        
+        if user.reset_password_token_expires_at < datetime.now(pytz.UTC):
+            raise ValidationError("Token Expired")
+
+        return value
+
 class TokenSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=400, required=False)
     password = serializers.CharField(min_length=8)

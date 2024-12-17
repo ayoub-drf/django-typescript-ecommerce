@@ -1,3 +1,10 @@
+import React from 'react'; 
+
+export interface AuthenticationProps {
+  isAuthenticated?: boolean,
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
+}
+
 export type Product = {
     id: number,
     name: string,
@@ -6,9 +13,11 @@ export type Product = {
     updated: string,
     image: string,
     category: number,
+    price: number | string,
+    quantity?: number
 }
 
-export interface formProps {
+export interface formProps extends AuthenticationProps {
     route: string;
     name: string;
 }
@@ -19,6 +28,13 @@ export type Category = {
     slug?: string,
 }
 
-export type CardProps = {
-    product: Product
+export interface CartProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cart?: any | object,
+    setCart?: React.Dispatch<React.SetStateAction<object | null>>
 }
+
+export interface CardProps extends CartProps {
+    product: Product,
+}
+

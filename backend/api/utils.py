@@ -53,7 +53,7 @@ def send_reset_email(request, recipient):
     
     protocol = 'https' if request.is_secure() else 'http'
     host = request.get_host()
-    rest_link = f"{protocol}://{host}/api/reset-password-done/{token}/"
+    rest_link = f"http://localhost:5173/reset-password-done/{token}/"
 
     context = {
         'username': user.username,

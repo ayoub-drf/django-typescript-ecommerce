@@ -6,8 +6,10 @@ User = get_user_model()
 
 from rest_framework.decorators import api_view
 from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
 )
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -24,7 +26,6 @@ from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     RetrieveAPIView,
-    
 )
 
 from .serializers import (
@@ -32,7 +33,8 @@ from .serializers import (
     TokenSerializer,
     RegisterSerializer,
     VerifyAccountSerializer,
-    ProductSerializer
+    ProductSerializer,
+    TokenSerializerTwo,
 )
 from .models import (
     Product,
@@ -48,14 +50,10 @@ from django.http import HttpResponse
 from datetime import timedelta, datetime
 from rest_framework_simplejwt.tokens import RefreshToken
 
-def index(request):
-    user = User.objects.first()
-    refresh = RefreshToken.for_user(user)
-    access = refresh.access_token
-    # access.set_exp(from_time=datetime.now(), lifetime=timedelta(minutes=10))
-    # print(refresh)
-
-    return HttpResponse('')
+class IsAuthenticatedView(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request, *args, **kwargs):
+        return Response({}, HTTP_200_OK)
 
 class ProductListCreateAPIView(ListCreateAPIView):
     queryset = Product.objects.all()
@@ -117,6 +115,13 @@ def verify_account_view(request):
 
     
     return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+
+class CheckTokenAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = TokenSerializerTwo(data=data) 
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)
 
 @api_view(['POST', ])
 def rest_password_done_view(request, token=None):

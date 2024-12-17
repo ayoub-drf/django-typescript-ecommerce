@@ -31,6 +31,7 @@ class CommonFields(models.Model):
 class Product(CommonFields):
     image = models.ImageField(upload_to="products/main-image/%Y/%m/%d/", default='products/products-example.png')
     slug = models.SlugField(unique=True, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=33.1)
     category = models.ForeignKey('Category', related_name='products', on_delete=models.CASCADE)
 
     class Meta:

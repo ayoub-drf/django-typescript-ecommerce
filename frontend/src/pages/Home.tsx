@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, FC } from "react"
 import Landing from "../components/Landing"
 import api from "../api";
-// import cardImage from "../assets/How_to_Win_Friends__Influence_People.jpg"
-// import cartIcon from "../assets/cart.png"
 import { Product } from "../types/types"
 import Card from "../components/Card";
+import { CartProps } from "../types/types"
 
-
-const Home = () => {
+const Home: FC<CartProps> = ({ cart, setCart }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     const getProducts = async () => {
@@ -31,7 +29,7 @@ const Home = () => {
                 <h2 className="text-[#2195F3] text-center text-[40px] mb-12 ">Popular Products</h2>
                 <div className="cards max-md:grid-cols-1 max-lg:grid-cols-2 place-items-center rounded gap-4 grid items-center grid-cols-3 mt-12">
                     {products.map((elem: Product, index: number) => {
-                        return <Card key={index} product={elem} />
+                        return <Card cart={cart} setCart={setCart} key={index} product={elem} />
                     })}
                 </div>
             </div>

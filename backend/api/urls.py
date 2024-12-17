@@ -7,7 +7,8 @@ from .views import (
     ProductListCreateAPIView,
     ProductRetrieveAPIView,
     get_category_name,
-    index,
+    IsAuthenticatedView,
+    CheckTokenAPIView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -15,11 +16,12 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path('', index),
+    path('is-auth/', IsAuthenticatedView.as_view()),
     
     path('auth/', TokenObtainPairView.as_view(), name="Auth"),
     path('auth/refresh/', TokenRefreshView.as_view(), name="Auth_refresh"),
     path('reset-password/', rest_password_view, name="Reset_password"),
+    path('check-token/', CheckTokenAPIView.as_view()),
     path('reset-password-done/<str:token>/', rest_password_done_view, name="Reset_password_done"),
 
     path('register/', RegisterUserCreateAPIView.as_view(), name="Register"),

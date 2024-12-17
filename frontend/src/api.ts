@@ -9,7 +9,7 @@ api.interceptors.request.use(
     (config) => {
         const token: string | null = localStorage.getItem(ACCESS_TOKEN);
         if (token) {
-            console.log(config.url);
+            // console.log(config.url);
             if (config.url != "/verify/" && config.url != "/register/") {
                 config.headers.Authorization = `Bearer ${token}`;
             }
