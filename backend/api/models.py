@@ -21,9 +21,6 @@ class CommonFields(models.Model):
     name = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.name}"
     
     class Meta:
         abstract = True
@@ -74,3 +71,34 @@ class Category(CommonFields):
 
     # def get_absolute_url(self):
     #     return reverse("_detail", kwargs={"pk": self.pk})
+
+
+class Order(CommonFields):
+    name = None
+    email = models.CharField(max_length=300)
+    address = models.CharField(max_length=300)
+    postalCode = models.CharField(max_length=300)
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"order id {self.email}"
+    
+
+    def total_price(self):
+        total = sum(item.product.price * item.quantity for item in self.order_items.all())
+        # if not isinstance(total, float) or not isinstance(total, int):
+        #     total = int(total)
+
+        return total
+
+
+class OrderItems(CommonFields):
+    name = None
+    order = models.ForeignKey('Order', related_name='order_items', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return f"order id {self.order.id} : product id {self.product.id}"
+
+

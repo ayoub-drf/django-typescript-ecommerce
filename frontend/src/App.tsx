@@ -13,9 +13,7 @@ import Loader from "./components/Loader"
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ResetPasswordDonePage from './pages/ResetPasswordDonePage'
 import CartPage from './pages/CartPage'
-
-
-
+import CheckoutPage from './pages/CheckoutPage'
 
 
 const App = () => {
@@ -82,6 +80,7 @@ const App = () => {
                 <Route path='/reset-password/' element={<ResetPasswordPage />} />         
                 <Route path='/reset-password-done/:token/' element={<ResetPasswordDonePage />} />         
                 <Route path='/cart/' element={<CartPage cart={cart} setCart={setCart} />} />         
+                <Route path='/checkout/' element={<CheckoutPage cart={cart} />} />         
             </Routes>
             <ToastContainer />
         </>

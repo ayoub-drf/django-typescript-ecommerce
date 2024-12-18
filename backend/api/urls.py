@@ -9,15 +9,22 @@ from .views import (
     get_category_name,
     IsAuthenticatedView,
     CheckTokenAPIView,
+    CreateCheckoutSession,
+    STRIPE_WEBHOOK,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView
 )
 
+
+
 urlpatterns = [
-    path('is-auth/', IsAuthenticatedView.as_view()),
+    path('stripe-webhooks/', STRIPE_WEBHOOK.as_view()),
+    path('create-checkout-session/', CreateCheckoutSession.as_view()),
     
+    path('is-auth/', IsAuthenticatedView.as_view()),
+
     path('auth/', TokenObtainPairView.as_view(), name="Auth"),
     path('auth/refresh/', TokenRefreshView.as_view(), name="Auth_refresh"),
     path('reset-password/', rest_password_view, name="Reset_password"),

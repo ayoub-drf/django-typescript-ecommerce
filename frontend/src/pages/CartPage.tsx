@@ -49,6 +49,9 @@ const CartPage: FC<CartProps> = ({ cart, setCart }) => {
 
   useEffect(() => {
     getProducts();
+    if (Object.keys(cart).length === 0) {
+      setProductTotalPrice(0);
+    }
   }, [cart]);
 
   return (
@@ -125,14 +128,17 @@ const CartPage: FC<CartProps> = ({ cart, setCart }) => {
       <div className="container mt-2 p-4">
         <h1 className="text-[22px] font-bold ">Cart total</h1>
         <div>
-            <p>
-                Items: {Object.values(cart).reduce((acc, current) => acc + current.quantity, 0)}
+            <p className="items">
+                Items: 
+                <span>
+                  {Object.values(cart).reduce((acc, current) => acc + current.quantity, 0)}
+                </span>
             </p>
-            <p>
+            <p className="price">
                 {productTotalPrice}
             </p>
         </div>
-        <a href="" className="bg-[#2196F3] rounded w-fit block mt-8 px-8 py-4 text-white font-bold text-[23px] ">Proceed to checkout</a>
+        <a href="/checkout/" className="bg-[#2196F3] rounded w-fit block mt-8 px-8 py-4 text-white font-bold text-[23px] ">Proceed to checkout</a>
       </div>
     </div>
   );

@@ -1,5 +1,9 @@
-from django.http import HttpResponse
 from django.conf import settings
+import stripe
+import stripe.error
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+from django.http import HttpResponse
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -19,7 +23,8 @@ from rest_framework.status import (
 )
 from rest_framework.exceptions import (
     NotFound,
-    ValidationError
+    ValidationError,
+    ParseError,
 )
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -39,16 +44,105 @@ from .serializers import (
 from .models import (
     Product,
     Category,
+    Order,
+    OrderItems
 )
 from .utils import (
     send_reset_email,
     send_verification_email,
-    send_account_verified_email
+    send_account_verified_email,
+    send_order_success
 )
+import json
 
 from django.http import HttpResponse
 from datetime import timedelta, datetime
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+
+class STRIPE_WEBHOOK(APIView):
+    def post(self, request):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        except ValueError as e:
+            return Response({}, HTTP_400_BAD_REQUEST)
+        except stripe.error.SignatureVerificationError as e:
+            return Response({}, HTTP_400_BAD_REQUEST)
+        
+
+    
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            customer_email = session['customer_email']
+            order_id = session['metadata']['order_id']
+            customer_name = session['customer_details']['name']
+            try:
+                order = Order.objects.get(id=order_id)
+                order.completed = True
+                order.save()
+                send_order_success(customer_email, customer_name)
+            except:
+                pass
+
+        return Response({}, HTTP_200_OK)
+    
+
+class CreateCheckoutSession(APIView):
+    def post(self, request, *args, **kwargs):
+        cart = request.data['cart']
+        if not isinstance(cart, dict):
+            cart = json.loads(cart)
+
+        order, _ = Order.objects.get_or_create(
+            email=request.data['email'],
+            address=request.data['address'],
+            postalCode=request.data['postalCode'],
+        )
+            
+        for i, v in cart.items():
+            try:
+                product = Product.objects.get(id=i)
+                order_items, _ = OrderItems.objects.get_or_create(
+                    product=product,
+                    order=order,
+                    quantity=v["quantity"],
+                )
+            except:
+                pass
+        total_price = int(order.total_price() * 100)
+        # print(total_price)
+        session = stripe.checkout.Session.create(
+            line_items=[{
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                'name': 'T-shirt',
+                },
+                'unit_amount': total_price,
+            },
+            'quantity': 1,
+            }],
+            mode='payment',
+            success_url='http://localhost:5173/success/',
+            cancel_url='http://localhost:5173/cancel/',
+            # Include the email and order ID so there is no confusion about the order refund.
+            customer_email=f"{order.email}",
+            metadata={
+                'order_id': f"{order.id}"
+            }
+        )
+        return Response({'id': session.id}, HTTP_200_OK)
+
 
 class IsAuthenticatedView(APIView):
     permission_classes = (IsAuthenticated, )

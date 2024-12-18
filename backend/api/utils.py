@@ -17,6 +17,17 @@ from .models import (
 
 User = get_user_model()
 
+def send_order_success(email, name):
+    subject = "Order Completed"
+    from_email = settings.EMAIL_HOST_USER
+
+    html_content = render_to_string("emails/order-completed.html", {"name": name})
+    text_content = strip_tags(html_content)
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [email])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+
 def send_account_verified_email(username, recipient):
     subject = "Account Verified"
     from_email = settings.EMAIL_HOST_USER
