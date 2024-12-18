@@ -1,13 +1,27 @@
 import { 
     useState,
     FormEvent,
+    useEffect
  } from "react"
 import Footer from "../components/Footer"
 import api from "../api"
 import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
+import { AxiosError } from "axios"
+import { FC } from "react"
+import { AuthenticationProps } from "../types/types"
 
-const VerifyEmail = () => {
+
+const VerifyEmail: FC<AuthenticationProps> = ({ setIsAuthenticated, isAuthenticated }) => {
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate("/")
+            // toast.success("Your Email ALready verified")
+        }
+    });
+
 
     const [code, setCode] = useState<string>("");
     const [errors, setErrors] = useState<unknown>({});
@@ -15,11 +29,14 @@ const VerifyEmail = () => {
     const verifyCode = async () => {
         try {
             const res = await api.post("/verify/", {code})
-            console.log(res)
+            setIsAuthenticated(true)
+            toast.success("Email verified successfully")
             navigate('/')
         } catch (error) {
-            if (error.response) {
-                setErrors(error.response.data)
+            if (error instanceof AxiosError) {
+                if (error.response) {
+                    setErrors(error.response.data)
+                }
             }
             console.log(error.response.data)
         }

@@ -17,6 +17,17 @@ from .models import (
 
 User = get_user_model()
 
+def send_order_success(email, name):
+    subject = "Order Completed"
+    from_email = settings.EMAIL_HOST_USER
+
+    html_content = render_to_string("emails/order-completed.html", {"name": name})
+    text_content = strip_tags(html_content)
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [email])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+
 def send_account_verified_email(username, recipient):
     subject = "Account Verified"
     from_email = settings.EMAIL_HOST_USER
@@ -53,7 +64,7 @@ def send_reset_email(request, recipient):
     
     protocol = 'https' if request.is_secure() else 'http'
     host = request.get_host()
-    rest_link = f"{protocol}://{host}/api/reset-password-done/{token}/"
+    rest_link = f"http://localhost:5173/reset-password-done/{token}/"
 
     context = {
         'username': user.username,

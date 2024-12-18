@@ -4,9 +4,15 @@ from .models import (
     Product,
     ProductImage,
     Category,
+    Order,
+    OrderItems,
 )
 
 admin.site.register(CustomUser)
+
+admin.site.register(Order)
+
+admin.site.register(OrderItems)
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'created', 'slug')
