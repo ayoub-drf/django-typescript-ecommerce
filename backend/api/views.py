@@ -78,6 +78,7 @@ class STRIPE_WEBHOOK(APIView):
             return Response({}, HTTP_400_BAD_REQUEST)
         except stripe.error.SignatureVerificationError as e:
             return Response({}, HTTP_400_BAD_REQUEST)
+        
 
     
         if event['type'] == 'checkout.session.completed':
