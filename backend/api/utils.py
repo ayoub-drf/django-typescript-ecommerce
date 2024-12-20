@@ -1,3 +1,8 @@
+import requests
+from io import BytesIO
+from PIL import Image
+from django.core.files import File
+
 from django.utils.text import slugify
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
@@ -16,6 +21,31 @@ from .models import (
 )
 
 User = get_user_model()
+
+def download_image_from_web(url):
+    req = requests.get(url)
+
+    def is_image(file_path):
+        try:
+            with Image.open(file_path) as img:
+                img.verify()
+            return True
+        except (IOError, SyntaxError):
+            return False
+
+    if req.status_code == 200:
+        # convert the raw image content into file BytesIO object for dj file
+        img_content = BytesIO(req.content)
+        # Image url
+        img_name = f"{url.split('/')[-1]}.png"
+        # create a dj file object from BytesIO
+        img_file = File(img_content, name=img_name)        
+            
+        if is_image(img_file):
+            return img_file
+        else:
+            return False
+        
 
 def send_order_success(email, name):
     subject = "Order Completed"

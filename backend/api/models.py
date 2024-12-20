@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 class CustomUser(AbstractUser):
+    google_id = models.CharField(max_length=300, null=True, blank=True)
     email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to="profiles/%Y/%m/%d/", default='profiles/avatar.png')
     bio = models.TextField(default='', blank=True)

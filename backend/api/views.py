@@ -2,6 +2,17 @@ from django.conf import settings
 import stripe
 import stripe.error
 stripe.api_key = settings.STRIPE_SECRET_KEY
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
+client_id = settings.GOOGLE_CLIENT_ID
+
+from django.utils.crypto import get_random_string
+
+
+from .tokens import (
+    generate_access_refresh_tokens
+)
+
 
 from django.http import HttpResponse
 from django.core.cache import cache
@@ -51,7 +62,8 @@ from .utils import (
     send_reset_email,
     send_verification_email,
     send_account_verified_email,
-    send_order_success
+    send_order_success,
+    download_image_from_web,
 )
 import json
 
@@ -135,7 +147,6 @@ class CreateCheckoutSession(APIView):
             mode='payment',
             success_url='http://localhost:5173/success/',
             cancel_url='http://localhost:5173/cancel/',
-            # Include the email and order ID so there is no confusion about the order refund.
             customer_email=f"{order.email}",
             metadata={
                 'order_id': f"{order.id}"
@@ -143,6 +154,44 @@ class CreateCheckoutSession(APIView):
         )
         return Response({'id': session.id}, HTTP_200_OK)
 
+class GoogleLoginAPIView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({'error': 'Token is required.'}, HTTP_400_BAD_REQUEST)
+        
+        try:
+            id_info = id_token.verify_oauth2_token(token, google_requests.Request(), client_id)
+            email = id_info['email']
+            name = id_info['name']
+            picture = id_info['picture']
+            google_id = id_info['sub']
+
+            if User.objects.filter(google_id=google_id, email=email).exists():
+                user = User.objects.get(google_id=google_id)
+                tokens = generate_access_refresh_tokens(user)
+                return Response(tokens, HTTP_200_OK)
+            
+            count = 1
+            while User.objects.filter(username=name).exists():
+                name = f"{name}{count}"
+        
+            if picture:
+                image = download_image_from_web(picture)
+
+            user = User.objects.create(
+                email=email,
+                username=name,
+                avatar=image,
+                google_id=google_id,
+            )
+            user.set_password(get_random_string(15))
+            user.save()
+            tokens = generate_access_refresh_tokens(user)
+            return Response(tokens, HTTP_201_CREATED)
+
+        except:
+            raise Response({"error": "Bad request"}, HTTP_400_BAD_REQUEST)
 
 class IsAuthenticatedView(APIView):
     permission_classes = (IsAuthenticated, )

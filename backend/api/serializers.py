@@ -1,9 +1,11 @@
+
+
+
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
 from rest_framework import serializers
 from rest_framework.status import (
-    HTTP_200_OK,
     HTTP_400_BAD_REQUEST
 )
 from rest_framework.serializers import ValidationError
@@ -16,6 +18,7 @@ import pytz
 from datetime import datetime, timedelta
 
 User = get_user_model()
+
 
 class VerifyAccountSerializer(serializers.Serializer):
     code = serializers.CharField()

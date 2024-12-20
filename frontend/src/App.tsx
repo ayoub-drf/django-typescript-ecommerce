@@ -14,6 +14,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import ResetPasswordDonePage from './pages/ResetPasswordDonePage'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
+import GoogleLoginButton from './components/GoogleLoginButton'
+
 
 
 const App = () => {
@@ -29,7 +31,7 @@ const App = () => {
             }
         } catch (error) {
             if (error instanceof AxiosError) {
-                console.log(error)
+                // console.log(error)
             }
         } finally {
             setIsLoading(false)
@@ -81,6 +83,7 @@ const App = () => {
                 <Route path='/reset-password-done/:token/' element={<ResetPasswordDonePage />} />         
                 <Route path='/cart/' element={<CartPage cart={cart} setCart={setCart} />} />         
                 <Route path='/checkout/' element={<CheckoutPage cart={cart} />} />         
+                <Route path='/google/' element={<GoogleLoginButton />} />         
             </Routes>
             <ToastContainer />
         </>

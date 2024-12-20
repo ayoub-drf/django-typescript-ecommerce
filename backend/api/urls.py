@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
     rest_password_view,
     rest_password_done_view,
@@ -11,6 +11,7 @@ from .views import (
     CheckTokenAPIView,
     CreateCheckoutSession,
     STRIPE_WEBHOOK,
+    GoogleLoginAPIView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -22,6 +23,9 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('stripe-webhooks/', STRIPE_WEBHOOK.as_view()),
     path('create-checkout-session/', CreateCheckoutSession.as_view()),
+
+    path('auth/google/', GoogleLoginAPIView.as_view()),
+
     
     path('is-auth/', IsAuthenticatedView.as_view()),
 

@@ -50,9 +50,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # New for allauth
+    # 'django.contrib.sites',
+
     # Third party packages
     'corsheaders',
     'rest_framework',
+
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.github',
 
     # My apps
     "api",
@@ -65,6 +74,7 @@ AUTH_USER_MODEL = 'api.CustomUser'
 MIDDLEWARE = [
     # Third party middlewares
     'corsheaders.middleware.CorsMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -73,6 +83,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -88,6 +99,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # `allauth` needs this from django
+                # 'django.template.context_processors.request',
             ],
         },
     },
@@ -202,6 +216,44 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+# AUTHENTICATION_BACKENDS = [
+#     # 'django.contrib.auth.backends.ModelBackend',
+
+#     # `allauth` specific authentication methods, such as login by email
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# ]
+
+# ACCOUNT_LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         },
+#         'OAUTH_PKCE_ENABLED': True,
+#     },
+#     'github': {
+#         'SCOPE': [
+#             'read:user',
+#             'user:email',
+#         ],
+#         'USER_FIELDS': ['email', 'login', 'name'],
+#         'SCOPE': [
+#             'user',
+#         ],
+#     },
+# }
+
+# SITE_ID = 1
+# SOCIALACCOUNT_ONLY = True
+# ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -228,3 +280,5 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str)
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', cast=str)
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', cast=str)
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', cast=str)
+
+GOOGLE_CLIENT_ID = "723379720848-9ldnto2dqbu4n0nbepa50pp10bti21kg.apps.googleusercontent.com"
