@@ -281,4 +281,4 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', cast=str)
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', cast=str)
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', cast=str)
 
-GOOGLE_CLIENT_ID = "723379720848-9ldnto2dqbu4n0nbepa50pp10bti21kg.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', cast=str)
