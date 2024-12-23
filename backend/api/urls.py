@@ -4,7 +4,7 @@ from .views import (
     rest_password_done_view,
     RegisterUserCreateAPIView,
     verify_account_view,
-    ProductListCreateAPIView,
+    ProductListAPIView,
     ProductRetrieveAPIView,
     get_category_name,
     IsAuthenticatedView,
@@ -39,7 +39,7 @@ urlpatterns = [
     path('register/', RegisterUserCreateAPIView.as_view(), name="Register"),
     path('verify/', verify_account_view, name="Verify_account"),
 
-    path("products/", ProductListCreateAPIView.as_view(), name="Products"),
+    path("products/", ProductListAPIView.as_view(), name="Products"),
     path("products/<str:slug>/", ProductRetrieveAPIView.as_view(), name="Products_detail"),
     
     path("category/<int:pk>/", get_category_name, name="Category"),

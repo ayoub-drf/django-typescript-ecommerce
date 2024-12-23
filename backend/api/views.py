@@ -7,11 +7,6 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 client_id = settings.GOOGLE_CLIENT_ID
 
-
-from .tokens import (
-    generate_access_refresh_tokens
-)
-
 from .tasks import (
     send_verification_email,
     send_account_verified_email,
@@ -21,6 +16,15 @@ from .tasks import (
 
 from .utils import (
     download_image_from_web,
+)
+
+from .throttling import (
+    CustomAnonRateThrottle,
+    CustomUserRateThrottle
+)
+
+from .tokens import (
+    generate_access_refresh_tokens
 )
 
 from django.utils.crypto import get_random_string
@@ -48,6 +52,7 @@ from rest_framework.generics import (
     ListCreateAPIView,
     CreateAPIView,
     RetrieveAPIView,
+    ListAPIView,
 )
 
 from .serializers import (
@@ -94,7 +99,7 @@ class STRIPE_WEBHOOK(APIView):
                 order = Order.objects.get(id=order_id)
                 order.completed = True
                 order.save()
-                send_order_success(customer_email, customer_name)
+                send_order_success.delay(customer_email, customer_name)
             except:
                 pass
 
@@ -189,10 +194,11 @@ class IsAuthenticatedView(APIView):
     def get(self, request, *args, **kwargs):
         return Response({}, HTTP_200_OK)
 
-class ProductListCreateAPIView(ListCreateAPIView):
+class ProductListAPIView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = ()
+    throttle_classes = (CustomAnonRateThrottle, CustomUserRateThrottle)
 
 class ProductRetrieveAPIView(RetrieveAPIView):
     queryset = Product.objects.all()

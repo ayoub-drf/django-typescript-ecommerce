@@ -8,11 +8,16 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token: string | null = localStorage.getItem(ACCESS_TOKEN);
+        const routes: string[] = ["verify/", "register/", "auth/google/", "products/", "category/"];
         if (token) {
-            console.log(config.url);
-            if (config.url != "/verify/" && config.url != "/register/" && config.url != "auth/google/") {
+            routes.every((route: string) => {
+                if (config.url?.includes(route) || config.url === `/${route}`) {
+                    delete config.headers.Authorization;
+                    return false
+                }
                 config.headers.Authorization = `Bearer ${token}`;
-            }
+                return true
+            })
         }
         return config
     }, (error: AxiosError) => {
