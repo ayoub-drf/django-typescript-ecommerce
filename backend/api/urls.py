@@ -21,10 +21,11 @@ from rest_framework_simplejwt.views import (
 
 
 urlpatterns = [
-    path('stripe-webhooks/', STRIPE_WEBHOOK.as_view()),
-    path('create-checkout-session/', CreateCheckoutSession.as_view()),
 
     path('auth/google/', GoogleLoginAPIView.as_view()),
+
+    path('stripe-webhooks/', STRIPE_WEBHOOK.as_view()),
+    path('create-checkout-session/', CreateCheckoutSession.as_view()),
 
     
     path('is-auth/', IsAuthenticatedView.as_view()),

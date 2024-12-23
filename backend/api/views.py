@@ -2,20 +2,28 @@ from django.conf import settings
 import stripe
 import stripe.error
 stripe.api_key = settings.STRIPE_SECRET_KEY
+endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 client_id = settings.GOOGLE_CLIENT_ID
-
-from django.utils.crypto import get_random_string
 
 
 from .tokens import (
     generate_access_refresh_tokens
 )
 
+from .tasks import (
+    send_verification_email,
+    send_account_verified_email,
+    send_reset_email,
+    send_order_success,
+)
 
-from django.http import HttpResponse
-from django.core.cache import cache
+from .utils import (
+    download_image_from_web,
+)
+
+from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -35,12 +43,10 @@ from rest_framework.status import (
 from rest_framework.exceptions import (
     NotFound,
     ValidationError,
-    ParseError,
 )
 from rest_framework.generics import (
     ListCreateAPIView,
     CreateAPIView,
-    ListAPIView,
     RetrieveAPIView,
 )
 
@@ -58,23 +64,9 @@ from .models import (
     Order,
     OrderItems
 )
-from .utils import (
-    send_reset_email,
-    send_verification_email,
-    send_account_verified_email,
-    send_order_success,
-    download_image_from_web,
-)
 import json
 
-from django.http import HttpResponse
-from datetime import timedelta, datetime
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
-endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
-
 
 class STRIPE_WEBHOOK(APIView):
     def post(self, request):
@@ -108,7 +100,6 @@ class STRIPE_WEBHOOK(APIView):
 
         return Response({}, HTTP_200_OK)
     
-
 class CreateCheckoutSession(APIView):
     def post(self, request, *args, **kwargs):
         cart = request.data['cart']
@@ -225,7 +216,7 @@ class RegisterUserCreateAPIView(CreateAPIView):
         response = super().create(request, *args, **kwargs)
         user = User.objects.filter(email=response.data['email']).first()
         try:
-            send_verification_email(user.username, user.email, user.verification_code)
+            send_verification_email.delay(user.username, user.email, user.verification_code)
         except:
             raise ValidationError({'detail': "SMTP error"}, HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -251,7 +242,7 @@ def verify_account_view(request):
         user.save()
 
         try:
-            send_account_verified_email(user.username, user.email)
+            send_account_verified_email.delay(user.username, user.email)
             return Response({"detail": "Account verified"}, HTTP_200_OK)
         except:
             raise ValidationError({'detail': "SMTP error"}, HTTP_500_INTERNAL_SERVER_ERROR)

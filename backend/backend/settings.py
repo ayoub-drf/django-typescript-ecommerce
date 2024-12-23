@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     # Third party packages
     'corsheaders',
     'rest_framework',
+    'storages',
 
     # 'allauth',
     # 'allauth.account',
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     # Third party middlewares
     'corsheaders.middleware.CorsMiddleware',
     # 'allauth.account.middleware.AccountMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -163,6 +165,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -270,6 +273,10 @@ CACHES = {
     }
 }
 
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL="redis://localhost:6379"
+
+
 EMAIL_BACKEND = config('EMAIL_BACKEND', cast=str)
 EMAIL_HOST = config('EMAIL_HOST', cast=str)
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
@@ -282,3 +289,26 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', cast=str)
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', cast=str)
 
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', cast=str)
+
+
+
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', cast=str)
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', cast=str)
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', cast=str)
+AWS_S3_FILE_OVERWRITE = False
+
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+    },
+    
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
